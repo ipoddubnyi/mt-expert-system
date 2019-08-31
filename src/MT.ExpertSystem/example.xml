@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<choice>
+    <questions>
+        <question id="0">Любите ли Вы программировать?</question>
+        <question id="1">Любите ли Вы технические предметы?</question>
+        <question id="2">Хотите ли Вы управлять людьми?</question>
+        <question id="3">Хорошо ли Вы знаете математику?</question>
+        <question id="4">Любите ли Вы экономику?</question>
+    </questions>
+    
+    <alternatives>
+        <alternative id="0" name="ФТК" aprior="0.7">
+            <question id="0" yes="0.95" no="0.2" />
+            <question id="1" yes="0.95" no="0.05" />
+            <question id="2" yes="0.2" no="0.7" />
+            <question id="3" yes="0.9" no="0.05" />
+            <question id="4" yes="0.2" no="0.8" />
+        </alternative>
+
+        <alternative id="1" name="ФЭМ" aprior="0.9">
+            <question id="0" yes="0.3" no="0.9" />
+            <question id="1" yes="0.1" no="0.85" />
+            <question id="2" yes="0.8" no="0.3" />
+            <question id="3" yes="0.6" no="0.2" />
+            <question id="4" yes="0.95" no="0.05" />
+        </alternative>
+
+        <alternative id="2" name="ФУИТ" aprior="0.6">
+            <question id="0" yes="0.8" no="0.4" />
+            <question id="1" yes="0.7" no="0.3" />
+            <question id="2" yes="0.95" no="0.05" />
+            <question id="3" yes="0.4" no="0.7" />
+            <question id="4" yes="0.85" no="0.2" />
+        </alternative>
+    </alternatives>
+</choice>
