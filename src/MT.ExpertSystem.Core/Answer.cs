@@ -1,12 +1,10 @@
-﻿
-namespace MT.ExpertSystem.Core
+﻿namespace MT.ExpertSystem.Core;
+
+public enum Answer
 {
-    public enum Answer
-    {
-        Yes         =  2,
-        YesLikely   =  1,
-        DontKnow    =  0,
-        NoLikely    = -1,
-        No          = -2
-    }
+    Yes = 2,
+    YesLikely = 1,
+    DontKnow = 0,
+    NoLikely = -1,
+    No = -2
 }
