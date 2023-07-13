@@ -28,7 +28,7 @@ public class Question
     public int? Number { get; set; }
 
     [XmlIgnore]
-    public bool IsAnswer => Answer.HasValue;
+    public bool HasAnswer => Answer.HasValue;
 
     public Question()
     {
@@ -37,6 +37,18 @@ public class Question
         Answer = null;
     }
 
+    public void SetAnswer(int number, Answer answer)
+    {
+        Number = number;
+        Answer = answer;
+    }
+
+    public void Reset()
+    {
+        Number = null;
+        Answer = null;
+    }
+
     public override string ToString()
-        => $"{Text} ({Cost:0.0000})";
+        => $"{Text} ({Cost:0.00})";
 }

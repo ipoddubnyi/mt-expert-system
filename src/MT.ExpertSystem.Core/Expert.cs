@@ -5,8 +5,8 @@ namespace MT.ExpertSystem.Core;
 [XmlRoot("expert")]
 public class Expert
 {
-    [XmlIgnore]
-    public string Subject { get; set; }
+    [XmlAttribute("title")]
+    public string Title { get; set; }
 
     [XmlArray("questions")]
     [XmlArrayItem("question")]
@@ -16,75 +16,71 @@ public class Expert
     [XmlArrayItem("alternative")]
     public Alternative[] Alternatives { get; set; }
 
-    private Question? currentQuestion;
-    private int? currentQuestionNumber;
-    public event Func<Expert, Question, Answer>? AskQuestion;
+    [XmlIgnore]
+    public bool HasQuestions => Questions.Any(q => !q.HasAnswer);
 
-    public Expert()
+    [XmlIgnore]
+    public Question? CurrentQuestion { get; private set; }
+
+    private int currentQuestionNumber;
+
+    private Expert()
     {
-        Subject = string.Empty;
+        Title = string.Empty;
         Questions = Array.Empty<Question>();
         Alternatives = Array.Empty<Alternative>();
     }
 
-    public Alternative Start()
+    public void Reset()
     {
-        if (Questions.Length == 0)
-            throw new ApplicationException("Список вопросов пуст.");
-
-        if (Alternatives.Length == 0)
-            throw new ApplicationException("Список возможных альтернатив пуст.");
-
-        Reset();
-
-        while (NextQuestion() && currentQuestion != null)
-        {
-            var answer = AskQuestionInvoke(currentQuestion);
-            AnalizeAnswer(answer);
-        }
-
-        return Alternatives[0];
-    }
-
-    private void Reset()
-    {
-        currentQuestion = null;
-        currentQuestionNumber = 0;
         Alternatives.Reset();
+        Questions.Reset();
+
         Alternatives = Alternatives.SortByProbability().ToArray();
-        Questions = Questions.UpdateCosts(Alternatives).ToArray();
+        Questions = Questions.UpdateCostsAndSort(Alternatives).ToArray();
+        CurrentQuestion = Questions.GetFirstNotAnswered();
+        currentQuestionNumber = 1;
     }
 
-    private Answer AskQuestionInvoke(Question question)
+    public Task SendAnswer(Answer answer)
     {
-        if (null != AskQuestion)
-            return AskQuestion(this, question);
+        if (CurrentQuestion == null)
+            throw new ApplicationException("Нет текущего вопроса. Нельзя дать ответ.");
 
-        return Answer.DontKnow;
-    }
+        CurrentQuestion.SetAnswer(currentQuestionNumber, answer);
 
-    public bool NextQuestion()
-    {
+        // пересчёт вероятностей
+        foreach (var alternative in Alternatives)
+            alternative.CalculateProbability(CurrentQuestion, answer);
+
+        Alternatives = Alternatives.SortByProbability().ToArray();
+        Questions = Questions.UpdateCostsAndSort(Alternatives).ToArray();
+        CurrentQuestion = Questions.GetFirstNotAnswered();
         currentQuestionNumber += 1;
-        currentQuestion = Questions.GetFirstNotAnswered();
-        return null != currentQuestion;
+
+#if DEBUG
+        // долгая операция подсчёта вероятностей
+        return Task.Delay(700);
+#endif
+
+        return Task.CompletedTask;
     }
 
-    public void AnalizeAnswer(Answer answer)
+    public Alternative? GetResult()
     {
-        // пересчёт вероятностей (в начале делать не надо!)
-        if (null != currentQuestion)
-        {
-            foreach (var alternative in Alternatives)
-            {
-                alternative.CalculateProbability(currentQuestion, answer);
-            }
+        // если есть ещё вопросы, то результата ещё нет
+        if (CurrentQuestion != null)
+            return null;
 
-            currentQuestion.Answer = answer;
-            currentQuestion.Number = currentQuestionNumber;
+        return Alternatives.FirstOrDefault();
+    }
 
-            Alternatives = Alternatives.SortByProbability().ToArray();
-            Questions = Questions.UpdateCosts(Alternatives).ToArray();
-        }
+    public static Expert? FromFile(string filePath)
+    {
+        using var fs = new FileStream(filePath, FileMode.Open);
+        var serializer = new XmlSerializer(typeof(Expert));
+        var expert = serializer.Deserialize(fs) as Expert;
+        expert?.Reset();
+        return expert;
     }
 }

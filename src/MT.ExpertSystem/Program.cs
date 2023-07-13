@@ -1,29 +1,46 @@
-﻿using MT.ExpertSystem.Core;
-using System.Linq;
-using System.Xml.Serialization;
+﻿using MT.ExpertSystem;
+using MT.ExpertSystem.Core;
 
 try
 {
     if (args.Length == 0)
         throw new ArgumentException("Не указан xml с данными выбора.");
 
-    var expert = Deserialize(args[0])
+    var expert = Expert.FromFile(args[0])
         ?? throw new ApplicationException("Не удалось загрузить xml с данными выбора.");
 
-    expert.AskQuestion += AskQuestion;
-    var alternative = expert.Start();
+    while (expert.HasQuestions)
+    {
+        var question = expert.CurrentQuestion
+            ?? throw new ApplicationException("Ошибка при формировании текущего вопроса.");
 
-    PrintResult(expert, alternative);
-    Console.ReadKey();
+        var answer = AskQuestion(expert, question);
+
+        await expert.SendAnswer(answer);
+    }
+
+    var result = expert.GetResult()
+        ?? throw new ApplicationException("Ошибка при формировании результата.");
+
+    PrintResult(expert, result);
+}
+catch (ExitException)
+{
+    Console.WriteLine("Выход...");
 }
 catch (Exception ex)
 {
     Console.WriteLine(ex);
 }
 
+const string CommandExit = "выход";
+
 static Answer AskQuestion(Expert expert, Question question)
 {
     Console.Clear();
+
+    PrintTitle(expert);
+    Console.WriteLine();
 
     PrintAlternatives(expert.Alternatives);
     Console.WriteLine();
@@ -33,6 +50,7 @@ static Answer AskQuestion(Expert expert, Question question)
 
     PrintCurrentQuestion(question);
     Console.WriteLine();
+    Console.Write("> ");
 
     Answer? answer = null;
 
@@ -51,31 +69,41 @@ static Answer AskQuestion(Expert expert, Question question)
     return answer.Value;
 }
 
+static void PrintTitle(Expert expert)
+{
+    Console.WriteLine(expert.Title);
+}
+
 static void PrintAlternatives(IEnumerable<Alternative> alternatives)
 {
-    Console.WriteLine("Альтернативы:");
+    Console.WriteLine("Варианты:");
 
     foreach (var alternative in alternatives)
-        Console.WriteLine($" - {alternative.Name} ({alternative.P:0.0%})");
+        Console.WriteLine($" - {alternative}");
 }
 
 static void PrintQuestions(IEnumerable<Question> questions)
 {
-    Console.WriteLine("Свидетельства:");
+    Console.WriteLine("Вопросы:");
 
     foreach (var question in questions)
-        Console.WriteLine($" - {question.Text} ({question.Cost:0.00}) - {AnswerToString(question.Answer)}");
+        Console.WriteLine($" - {question} - {AnswerToString(question.Answer)}");
 }
 
 static void PrintCurrentQuestion(Question question)
 {
-    Console.WriteLine(question.Text);
+    Console.WriteLine(new string('-', 10));
+    Console.WriteLine();
+
+    Console.WriteLine($"Для выхода из программы напечатайте: {CommandExit}");
+    Console.WriteLine();
+
+    Console.WriteLine("Вопрос:");
+    Console.WriteLine(question.Text.ToUpper());
+    Console.WriteLine();
+
     foreach (var answer in Enum.GetValues<Answer>().OrderByDescending(a => a))
         Console.WriteLine($"{(int)answer,2} - {AnswerToString(answer)}");
-
-    Console.WriteLine();
-    Console.WriteLine("Для выхода из программы напечатайте: выйти");
-    Console.WriteLine();
 }
 
 static string AnswerToString(Answer? answer)
@@ -101,17 +129,24 @@ static void PrintResult(Expert expert, Alternative alternative)
     PrintQuestions(expert.Questions.OrderBy(q => q.Number));
     Console.WriteLine();
 
-    Console.WriteLine("Ваш выбор:");
-    Console.WriteLine($" - {alternative.Name} ({alternative.P:0.0%})");
+    Console.WriteLine(new string('-', 10));
     Console.WriteLine();
 
-    Console.WriteLine("Нажмите любую клавишу для завершения.");
+    Console.WriteLine("Ваш выбор:");
+    Console.WriteLine(alternative.ToString().ToUpper());
+    Console.WriteLine();
+
+    Console.WriteLine("Нажмите любую клавишу для завершения...");
+    Console.ReadKey();
 }
 
 static Answer? ParseAnswer(string? line)
 {
-    if (line != null && line.Equals("выйти", StringComparison.OrdinalIgnoreCase))
-        throw new ApplicationException("Выход");
+    if (string.IsNullOrEmpty(line))
+        return null;
+
+    if (line.Equals(CommandExit, StringComparison.OrdinalIgnoreCase))
+        throw new ExitException();
 
     if (!int.TryParse(line, out var answer))
         return null;
@@ -125,11 +160,4 @@ static Answer? ParseAnswer(string? line)
         -2 => Answer.No,
         _ => null,
     };
-}
-
-static Expert? Deserialize(string filePath)
-{
-    using var fs = new FileStream(filePath, FileMode.Open);
-    var serializer = new XmlSerializer(typeof(Expert));
-    return serializer.Deserialize(fs) as Expert;
 }

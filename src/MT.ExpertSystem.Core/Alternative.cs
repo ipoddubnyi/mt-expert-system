@@ -41,7 +41,7 @@ public class Alternative
     }
 
     public override string ToString()
-        => $"{Name} ({P:0.0000})";
+        => $"{Name} ({P:0.0%})";
 
     public void Reset()
     {
