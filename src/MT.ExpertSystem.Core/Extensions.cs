@@ -44,8 +44,8 @@ internal static class Extensions
 
             foreach (var alternative in alternatives)
             {
-                var p1 = alternative.GetProbabilityYes(question) * alternative.P * (N - M);
-                var p2 = (1 - alternative.GetProbabilityYes(question)) * alternative.P * (1 - N + M);
+                var p1 = alternative.GetProbabilityYesForQuestion(question) * alternative.P * (N - M);
+                var p2 = (1 - alternative.GetProbabilityYesForQuestion(question)) * alternative.P * (1 - N + M);
                 cost += Math.Abs(p1 - p2);
             }
 

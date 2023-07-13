@@ -33,7 +33,7 @@ public class Question
     public Question()
     {
         Text = string.Empty;
-        Cost = 0d;
+        Cost = 0.0;
         Answer = null;
     }
 

@@ -37,7 +37,7 @@ public class Alternative
     {
         Name = string.Empty;
         Questions = Array.Empty<AlternativeQuestion>();
-        P = 0d;
+        P = 0.0;
     }
 
     public override string ToString()
@@ -50,12 +50,15 @@ public class Alternative
 
     public double CalculateProbability(Question question, Answer answer)
     {
+        var Pyes = GetProbabilityYesForQuestion(question);
+        var Pno = GetProbabilityNoForQuestion(question);
+
         P = answer switch
         {
-            Answer.Yes => CalcProbabilityYes(question),
-            Answer.No => CalcProbabilityNo(question),
-            Answer.YesLikely => CalcProbabilityYesLikely(question),
-            Answer.NoLikely => CalcProbabilityNoLikely(question),
+            Answer.Yes => BayesMath.ProbabilityYes(P, Pyes, Pno),
+            Answer.No => BayesMath.ProbabilityNo(P, Pyes, Pno),
+            Answer.YesLikely => BayesMath.ProbabilityYesLikely(P, Pyes, Pno),
+            Answer.NoLikely => BayesMath.ProbabilityNoLikely(P, Pyes, Pno),
             Answer.DontKnow => P,
             _ => throw new ApplicationException($"Неизвестный ответ {answer}."),
         };
@@ -66,7 +69,7 @@ public class Alternative
     /// <summary>
     /// Вероятность выбора альтернативы при ответе ДА на вопрос.
     /// </summary>
-    public double GetProbabilityYes(Question question)
+    public double GetProbabilityYesForQuestion(Question question)
     {
         var relation = Questions.GetById(question.Id);
 
@@ -78,52 +81,12 @@ public class Alternative
     /// <summary>
     /// Вероятность выбора альтернативы при ответе НЕТ на вопрос.
     /// </summary>
-    public double GetProbabilityNo(Question question)
+    public double GetProbabilityNoForQuestion(Question question)
     {
         var relation = Questions.GetById(question.Id);
 
         return relation != null
             ? relation.No
             : throw new ApplicationException($"Не найдена связь альтернативы {Id} со свидетельством {question.Id}.");
-    }
-
-    private double CalcProbabilityYes(Question question)
-    {
-        var Pyes = GetProbabilityYes(question);
-        var Pno = GetProbabilityNo(question);
-
-        return Pyes * P / (Pyes * P + Pno * (1 - P));
-    }
-
-    private double CalcProbabilityNo(Question question)
-    {
-        var Pyes = GetProbabilityYes(question);
-        var Pno = GetProbabilityNo(question);
-
-        return Pno * P / (Pno * P + Pyes * (1 - P));
-    }
-
-    private double CalcProbabilityYesLikely(Question question)
-    {
-        var yes = (int)Answer.Yes;
-        var yesLikely = (int)Answer.YesLikely;
-        var dontKnow = (int)Answer.DontKnow;
-
-        var P0 = P;
-        var P2 = CalcProbabilityYes(question);
-
-        return (P2 - P0) / (yes - dontKnow) * yesLikely + P0;
-    }
-
-    public double CalcProbabilityNoLikely(Question question)
-    {
-        var dontKnow = (int)Answer.DontKnow;
-        var noLikely = (int)Answer.NoLikely;
-        var no = (int)Answer.No;
-
-        var P0 = P;
-        var P2 = CalcProbabilityNo(question);
-
-        return (P0 - P2) / (dontKnow - no) * noLikely + P0;
     }
 }
