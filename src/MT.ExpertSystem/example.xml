@@ -9,7 +9,7 @@
 	</questions>
 
 	<alternatives>
-		<alternative id="0" name="ФТК" aprior="0.7">
+		<alternative id="0" name="ФТК" priori="0.7">
 			<question id="0" yes="0.95" no="0.2" />
 			<question id="1" yes="0.95" no="0.05" />
 			<question id="2" yes="0.2" no="0.7" />
@@ -17,7 +17,7 @@
 			<question id="4" yes="0.2" no="0.8" />
 		</alternative>
 
-		<alternative id="1" name="ФЭМ" aprior="0.9">
+		<alternative id="1" name="ФЭМ" priori="0.9">
 			<question id="0" yes="0.3" no="0.9" />
 			<question id="1" yes="0.1" no="0.85" />
 			<question id="2" yes="0.8" no="0.3" />
@@ -25,7 +25,7 @@
 			<question id="4" yes="0.95" no="0.05" />
 		</alternative>
 
-		<alternative id="2" name="ФУИТ" aprior="0.6">
+		<alternative id="2" name="ФУИТ" priori="0.6">
 			<question id="0" yes="0.8" no="0.4" />
 			<question id="1" yes="0.7" no="0.3" />
 			<question id="2" yes="0.95" no="0.05" />

@@ -3,7 +3,9 @@ using System.Xml.Serialization;
 
 namespace MT.ExpertSystem.Core;
 
-/// <summary>Вопрос (свидетельство).</summary>
+/// <summary>
+/// Вопрос (свидетельство).
+/// </summary>
 [DebuggerDisplay("{Text} ({Cost})")]
 public class Question
 {
@@ -19,17 +21,22 @@ public class Question
     [XmlIgnore]
     public Answer? Answer { get; set; }
 
+    /// <summary>
+    /// Номер по порядку.
+    /// </summary>
+    [XmlIgnore]
+    public int? Number { get; set; }
+
     [XmlIgnore]
     public bool IsAnswer => Answer.HasValue;
 
     public Question()
     {
+        Text = string.Empty;
         Cost = 0d;
         Answer = null;
     }
 
     public override string ToString()
-    {
-        return $"{Text} ({Cost:0.0000})";
-    }
+        => $"{Text} ({Cost:0.0000})";
 }

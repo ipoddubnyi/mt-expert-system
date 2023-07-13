@@ -5,8 +5,6 @@ namespace MT.ExpertSystem.Core;
 [XmlRoot("expert")]
 public class Expert
 {
-    public delegate Answer AskQuestionHandler(Question question);
-
     [XmlIgnore]
     public string Subject { get; set; }
 
@@ -18,23 +16,28 @@ public class Expert
     [XmlArrayItem("alternative")]
     public Alternative[] Alternatives { get; set; }
 
-    private Question currentQuestion;
-    private int ansCount;
-    public event AskQuestionHandler AskQuestion;
+    private Question? currentQuestion;
+    private int? currentQuestionNumber;
+    public event Func<Expert, Question, Answer>? AskQuestion;
 
     public Expert()
     {
         Subject = string.Empty;
-        Questions = new Question[0];
-        Alternatives = new Alternative[0];
+        Questions = Array.Empty<Question>();
+        Alternatives = Array.Empty<Alternative>();
     }
 
     public Alternative Start()
     {
-        CheckEntries();
+        if (Questions.Length == 0)
+            throw new ApplicationException("Список вопросов пуст.");
+
+        if (Alternatives.Length == 0)
+            throw new ApplicationException("Список возможных альтернатив пуст.");
+
         Reset();
 
-        while (NextQuestion())
+        while (NextQuestion() && currentQuestion != null)
         {
             var answer = AskQuestionInvoke(currentQuestion);
             AnalizeAnswer(answer);
@@ -46,52 +49,23 @@ public class Expert
     private void Reset()
     {
         currentQuestion = null;
-        ansCount = 0;
+        currentQuestionNumber = 0;
         Alternatives.Reset();
-        ReCountQuestionsCost();
         Alternatives = Alternatives.SortByProbability().ToArray();
-    }
-
-    private void CheckEntries()
-    {
-        if (0 == Questions.Length)
-            throw new Exception("Список вопросов пуст.");
-
-        if (0 == Alternatives.Length)
-            throw new Exception("Список возможных альтернатив пуст.");
+        Questions = Questions.UpdateCosts(Alternatives).ToArray();
     }
 
     private Answer AskQuestionInvoke(Question question)
     {
         if (null != AskQuestion)
-            return AskQuestion(question);
+            return AskQuestion(this, question);
 
         return Answer.DontKnow;
     }
 
-    private void ReCountQuestionsCost()
-    {
-        int N = Questions.Length;
-
-        foreach (var question in Questions)
-        {
-            double sum = 0d;
-
-            foreach (var alternative in Alternatives)
-            {
-                var p1 = alternative.Pyes(question) * alternative.P * (N - ansCount);
-                var p2 = (1 - alternative.Pyes(question)) * alternative.P * (1 - N + ansCount);
-                sum += Math.Abs(p1 - p2);
-            }
-
-            question.Cost = sum;
-        }
-
-        Questions = Questions.SortByCost().ToArray();
-    }
-
     public bool NextQuestion()
     {
+        currentQuestionNumber += 1;
         currentQuestion = Questions.GetFirstNotAnswered();
         return null != currentQuestion;
     }
@@ -107,10 +81,10 @@ public class Expert
             }
 
             currentQuestion.Answer = answer;
-            ansCount += 1;
+            currentQuestion.Number = currentQuestionNumber;
 
             Alternatives = Alternatives.SortByProbability().ToArray();
-            ReCountQuestionsCost();
+            Questions = Questions.UpdateCosts(Alternatives).ToArray();
         }
     }
 }
