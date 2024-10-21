@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 
 namespace MT.ExpertSystem.Core;
@@ -10,28 +11,33 @@ namespace MT.ExpertSystem.Core;
 public class Question
 {
     [XmlAttribute("id")]
-    public int Id { get; set; }
+    public string Id { get; set; }
 
     [XmlText]
     public string Text { get; set; }
 
     [XmlIgnore]
+    [JsonIgnore]
     public double Cost { get; set; }
 
     [XmlIgnore]
+    [JsonIgnore]
     public Answer? Answer { get; set; }
 
     /// <summary>
     /// Номер по порядку.
     /// </summary>
     [XmlIgnore]
+    [JsonIgnore]
     public int? Number { get; set; }
 
     [XmlIgnore]
+    [JsonIgnore]
     public bool HasAnswer => Answer.HasValue;
 
     public Question()
     {
+        Id = string.Empty;
         Text = string.Empty;
         Cost = 0.0;
         Answer = null;

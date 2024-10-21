@@ -6,8 +6,11 @@ try
     if (args.Length == 0)
         throw new ArgumentException("Не указан xml с данными выбора.");
 
-    var expert = Expert.FromFile(args[0])
-        ?? throw new ApplicationException("Не удалось загрузить xml с данными выбора.");
+    //var expert = Expert.FromFileXml(args[0])
+    //    ?? throw new ApplicationException("Не удалось загрузить xml с данными выбора.");
+
+    var expert = Expert.FromFileJson(args[0])
+        ?? throw new ApplicationException("Не удалось загрузить json с данными выбора.");
 
     while (expert.HasQuestions)
     {

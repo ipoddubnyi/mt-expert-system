@@ -2,7 +2,7 @@
 
 internal static class Extensions
 {
-    public static Question? GetById(this IEnumerable<Question> questions, int id)
+    public static Question? GetById(this IEnumerable<Question> questions, string id)
         => questions.FirstOrDefault(q => q.Id == id);
 
     public static Question? GetFirstNotAnswered(this IEnumerable<Question> questions)
@@ -14,7 +14,7 @@ internal static class Extensions
             question.Reset();
     }
 
-    public static AlternativeQuestion? GetById(this IEnumerable<AlternativeQuestion> questions, int id)
+    public static AlternativeQuestion? GetById(this IEnumerable<AlternativeQuestion> questions, string id)
         => questions.FirstOrDefault(q => q.QuestionId == id);
 
     public static void Reset(this IEnumerable<Alternative> alternatives)

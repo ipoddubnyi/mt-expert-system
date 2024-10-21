@@ -10,7 +10,7 @@ namespace MT.ExpertSystem.Core;
 public class Alternative
 {
     [XmlAttribute("id")]
-    public int Id { get; set; }
+    public string Id { get; set; }
 
     [XmlAttribute("name")]
     public string Name { get; set; }
@@ -35,6 +35,7 @@ public class Alternative
 
     public Alternative()
     {
+        Id = string.Empty;
         Name = string.Empty;
         Questions = Array.Empty<AlternativeQuestion>();
         P = 0.0;

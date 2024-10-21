@@ -1,4 +1,6 @@
-﻿using System.Xml.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 
 namespace MT.ExpertSystem.Core;
 
@@ -17,14 +19,16 @@ public class Expert
     public Alternative[] Alternatives { get; set; }
 
     [XmlIgnore]
+    [JsonIgnore]
     public bool HasQuestions => Questions.Any(q => !q.HasAnswer);
 
     [XmlIgnore]
+    [JsonIgnore]
     public Question? CurrentQuestion { get; private set; }
 
     private int currentQuestionNumber;
 
-    private Expert()
+    public Expert()
     {
         Title = string.Empty;
         Questions = Array.Empty<Question>();
@@ -75,11 +79,22 @@ public class Expert
         return Alternatives.FirstOrDefault();
     }
 
-    public static Expert? FromFile(string filePath)
+    public static Expert? FromFileXml(string filePath)
     {
         using var fs = new FileStream(filePath, FileMode.Open);
         var serializer = new XmlSerializer(typeof(Expert));
         var expert = serializer.Deserialize(fs) as Expert;
+        expert?.Reset();
+        return expert;
+    }
+
+    public static Expert? FromFileJson(string filePath)
+    {
+        //var json = File.ReadAllText(filePath);
+        //var e = JsonSerializer.Deserialize<TmpE>(json, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+
+        using var fs = new FileStream(filePath, FileMode.Open);
+        var expert = JsonSerializer.Deserialize<Expert>(fs, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
         expert?.Reset();
         return expert;
     }

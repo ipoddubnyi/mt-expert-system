@@ -1,4 +1,6 @@
-﻿using System.Xml.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 
 namespace MT.ExpertSystem.Core;
 
@@ -11,7 +13,8 @@ namespace MT.ExpertSystem.Core;
 public class AlternativeQuestion
 {
     [XmlAttribute("id")]
-    public int QuestionId { get; set; }
+    [JsonPropertyName("id")]
+    public string QuestionId { get; set; }
 
     [XmlAttribute("yes")]
     public double Yes { get; set; }
