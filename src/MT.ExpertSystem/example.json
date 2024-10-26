@@ -28,98 +28,119 @@
     {
       "id": "a1_ftk",
       "name": "Факультет технической кибернетики",
-      "priori": 0.7,
-      "questions": [
-        {
-          "id": "q1_programming",
-          "yes": 0.95,
-          "no": 0.2
-        },
-        {
-          "id": "q2_technic",
-          "yes": 0.95,
-          "no": 0.05
-        },
-        {
-          "id": "q3_management",
-          "yes": 0.2,
-          "no": 0.7
-        },
-        {
-          "id": "q4_math",
-          "yes": 0.9,
-          "no": 0.05
-        },
-        {
-          "id": "q5_economic",
-          "yes": 0.2,
-          "no": 0.8
-        }
-      ]
+      "priori": 0.7
     },
     {
       "id": "a2_fem",
       "name": "Факультет экономики и менеджмента",
-      "priori": 0.9,
-      "questions": [
-        {
-          "id": "q1_programming",
-          "yes": 0.3,
-          "no": 0.9
-        },
-        {
-          "id": "q2_technic",
-          "yes": 0.1,
-          "no": 0.85
-        },
-        {
-          "id": "q3_management",
-          "yes": 0.8,
-          "no": 0.3
-        },
-        {
-          "id": "q4_math",
-          "yes": 0.6,
-          "no": 0.2
-        },
-        {
-          "id": "q5_economic",
-          "yes": 0.95,
-          "no": 0.05
-        }
-      ]
+      "priori": 0.9
     },
     {
       "id": "a3_fuit",
       "name": "Факультет управления и информационных технологий",
-      "priori": 0.6,
-      "questions": [
-        {
-          "id": "q1_programming",
-          "yes": 0.8,
-          "no": 0.4
-        },
-        {
-          "id": "q2_technic",
-          "yes": 0.7,
-          "no": 0.3
-        },
-        {
-          "id": "q3_management",
-          "yes": 0.95,
-          "no": 0.05
-        },
-        {
-          "id": "q4_math",
-          "yes": 0.4,
-          "no": 0.7
-        },
-        {
-          "id": "q5_economic",
-          "yes": 0.85,
-          "no": 0.2
-        }
-      ]
+      "priori": 0.6
+    }
+  ],
+
+  "relations": [
+
+    // a1_ftk
+
+    {
+      "alternativeId": "a1_ftk",
+      "questionId": "q1_programming",
+      "yes": 0.95,
+      "no": 0.2
+    },
+    {
+      "alternativeId": "a1_ftk",
+      "questionId": "q2_technic",
+      "yes": 0.95,
+      "no": 0.05
+    },
+    {
+      "alternativeId": "a1_ftk",
+      "questionId": "q3_management",
+      "yes": 0.2,
+      "no": 0.7
+    },
+    {
+      "alternativeId": "a1_ftk",
+      "questionId": "q4_math",
+      "yes": 0.9,
+      "no": 0.05
+    },
+    {
+      "alternativeId": "a1_ftk",
+      "questionId": "q5_economic",
+      "yes": 0.2,
+      "no": 0.8
+    },
+
+    // a2_fem
+
+    {
+      "alternativeId": "a2_fem",
+      "questionId": "q1_programming",
+      "yes": 0.3,
+      "no": 0.9
+    },
+    {
+      "alternativeId": "a2_fem",
+      "questionId": "q2_technic",
+      "yes": 0.1,
+      "no": 0.85
+    },
+    {
+      "alternativeId": "a2_fem",
+      "questionId": "q3_management",
+      "yes": 0.8,
+      "no": 0.3
+    },
+    {
+      "alternativeId": "a2_fem",
+      "questionId": "q4_math",
+      "yes": 0.6,
+      "no": 0.2
+    },
+    {
+      "alternativeId": "a2_fem",
+      "questionId": "q5_economic",
+      "yes": 0.95,
+      "no": 0.05
+    },
+
+    // a3_fuit
+
+    {
+      "alternativeId": "a3_fuit",
+      "questionId": "q1_programming",
+      "yes": 0.8,
+      "no": 0.4
+    },
+    {
+      "alternativeId": "a3_fuit",
+      "questionId": "q2_technic",
+      "yes": 0.7,
+      "no": 0.3
+    },
+    {
+      "alternativeId": "a3_fuit",
+      "questionId": "q3_management",
+      "yes": 0.95,
+      "no": 0.05
+    },
+    {
+      "alternativeId": "a3_fuit",
+      "questionId": "q4_math",
+      "yes": 0.4,
+      "no": 0.7
+    },
+    {
+      "alternativeId": "a3_fuit",
+      "questionId": "q5_economic",
+      "yes": 0.85,
+      "no": 0.2
     }
   ]
 }

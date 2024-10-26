@@ -2,58 +2,30 @@
 
 internal static class Extensions
 {
-    public static Question? GetById(this IEnumerable<Question> questions, string id)
-        => questions.FirstOrDefault(q => q.Id == id);
-
-    public static Question? GetFirstNotAnswered(this IEnumerable<Question> questions)
-        => questions.FirstOrDefault(q => !q.HasAnswer);
-
-    public static void Reset(this IEnumerable<Question> questions)
-    {
-        foreach (var question in questions)
-            question.Reset();
-    }
-
-    public static AlternativeQuestion? GetById(this IEnumerable<AlternativeQuestion> questions, string id)
-        => questions.FirstOrDefault(q => q.QuestionId == id);
-
-    public static void Reset(this IEnumerable<Alternative> alternatives)
-    {
-        foreach (var alternative in alternatives)
-            alternative.Reset();
-    }
-
-    public static IEnumerable<Alternative> SortByProbability(this IEnumerable<Alternative> alternatives)
-        => alternatives.OrderByDescending(a => a.P);
+    /// <summary>
+    /// Получить следующее свидетельство.
+    /// </summary>
+    /// <param name="questions"></param>
+    public static QuestionWithAnswer? GetNext(this IEnumerable<QuestionWithAnswer> questions)
+        => questions.Where(q => !q.Answer.HasValue).MaxBy(q => q.Cost);
 
     /// <summary>
-    /// Обновить цены свидетельств, чтобы задавать вопросы в актуальном порядке.
+    /// Получить связь альтернативы со свидетельством.
     /// </summary>
-    public static IEnumerable<Question> UpdateCostsAndSort(
-        this IEnumerable<Question> questions,
-        IEnumerable<Alternative> alternatives)
+    /// <exception cref="ApplicationException"></exception>
+    public static Relation Get(this IEnumerable<Relation> relations, string alternativeId, string questionId)
     {
-        var N = questions.Count();
+        var relation = relations?.FirstOrDefault(r =>
+            r.AlternativeId.Equals(alternativeId, StringComparison.OrdinalIgnoreCase) &&
+            r.QuestionId.Equals(questionId, StringComparison.OrdinalIgnoreCase));
 
-        // количество отвеченных вопросов
-        var M = questions.Count(q => q.HasAnswer);
-
-        foreach (var question in questions)
-        {
-            var cost = 0d;
-
-            foreach (var alternative in alternatives)
-            {
-                var p1 = alternative.GetProbabilityYesForQuestion(question) * alternative.P * (N - M);
-                var p2 = (1 - alternative.GetProbabilityYesForQuestion(question)) * alternative.P * (1 - N + M);
-                cost += Math.Abs(p1 - p2);
-            }
-
-            question.Cost = cost;
-        }
-
-        return questions
-            .OrderBy(q => q.HasAnswer)
-            .ThenByDescending(q => q.Cost);
+        return relation
+            ?? throw new ApplicationException($"Не найдена связь альтернативы {alternativeId} со свидетельством {questionId}.");
     }
+
+    /// <summary>
+    /// Получить наиболее вероятную альтренативу.
+    /// </summary>
+    public static AlternativeWithProbability? GetBest(this IEnumerable<AlternativeWithProbability> alternatives)
+        => alternatives.MaxBy(a => a.P);
 }
